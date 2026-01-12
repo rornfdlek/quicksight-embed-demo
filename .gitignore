@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.env
+.DS_Store
+*.log
+
+# 임시 정책 파일
+athena-policy.json
+bucket-policy.json
+s3-policy.json
+.claude/

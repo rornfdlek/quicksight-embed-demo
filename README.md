@@ -132,6 +132,66 @@ npm run dev
 | GET | `/api/dashboard/:id` | 대시보드 정보 조회 |
 | GET | `/api/health` | 헬스 체크 |
 
+## 임베딩 URL이란?
+
+임베딩 URL은 **인증 토큰이 포함된 일회성 접근 URL**입니다.
+
+### 왜 필요한가?
+
+QuickSight 대시보드는 기본적으로 **AWS 콘솔에 로그인한 사용자만** 볼 수 있습니다. 하지만 외부 웹앱에 임베딩하려면 사용자가 AWS 로그인 없이 봐야 합니다.
+
+```
+일반 URL (접근 불가):
+https://quicksight.aws.amazon.com/sn/dashboards/abc123
+
+임베딩 URL (접근 가능):
+https://quicksight.aws.amazon.com/embed/abc123?code=eyJhbG...인증토큰...
+```
+
+### 임베딩 URL 특징
+
+| 항목 | 설명 |
+|------|------|
+| **인증 토큰 포함** | AWS 자격증명 없이 대시보드 접근 가능 |
+| **유효 시간 제한** | `SessionLifetimeInMinutes`로 설정 (최대 10시간) |
+| **일회성** | 한 번 생성된 URL은 재사용 불가 |
+| **도메인 제한** | QuickSight에 등록된 도메인에서만 작동 |
+
+## 임베딩 유형: 등록된 사용자 vs 익명 사용자
+
+### 등록된 사용자 (Registered User)
+
+```javascript
+GenerateEmbedUrlForRegisteredUserCommand
+```
+
+- **대상**: QuickSight에 등록된 사용자 (IAM, QuickSight 그룹 등)
+- **인증**: 특정 사용자의 권한으로 대시보드 접근
+- **비용**: QuickSight 사용자 라이선스 필요 (월 $18~24/user)
+- **용도**: 내부 직원용, 권한별 데이터 접근 제어가 필요한 경우
+- **장점**: Row-Level Security (RLS) 적용 가능 - 사용자별로 다른 데이터 표시
+
+### 익명 사용자 (Anonymous User)
+
+```javascript
+GenerateEmbedUrlForAnonymousUserCommand
+```
+
+- **대상**: QuickSight 계정이 없는 외부 사용자
+- **인증**: 세션 기반 임시 접근
+- **비용**: 세션당 과금 ($0.30/session, 30분 단위)
+- **용도**: 고객 포털, 공개 대시보드, 외부 파트너용
+- **장점**: 사용자 등록 불필요, 대규모 외부 공개에 적합
+
+### 선택 기준
+
+| 상황 | 추천 방식 |
+|------|----------|
+| 회사 내부 직원 10명이 매일 사용 | 등록된 사용자 |
+| 고객 1000명에게 각자 대시보드 제공 | 익명 사용자 |
+| 사용자별 데이터 필터링 필요 | 등록된 사용자 (RLS) |
+| 퍼블릭 웹사이트에 차트 공개 | 익명 사용자 |
+
 ## 인증 흐름 (Authentication Flow)
 
 QuickSight 임베딩은 **백엔드에서 인증을 처리**하고, 프론트엔드는 인증된 URL을 받아서 사용합니다.

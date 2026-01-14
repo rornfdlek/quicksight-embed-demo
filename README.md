@@ -2,6 +2,10 @@
 
 AWS QuickSight 대시보드를 React 웹 애플리케이션에 임베딩하는 프로젝트입니다.
 
+## 데모
+
+![QuickSight Embedding Demo](./Image.jpg)
+
 ## 프로젝트 구조
 
 ```
